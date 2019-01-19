@@ -25,13 +25,14 @@ SECRET_KEY = '5k^wfmuv#+tgixh#ahf$hywazx!ap2(m(4_g=s7i0%#e23@@@w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
+CORS_ALLOW_CREDENTIALS = True
 
 INSTALLED_APPS = [
-    
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +42,14 @@ INSTALLED_APPS = [
     'peeps_api',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'my_django_project.urls'
 
@@ -82,6 +92,7 @@ DATABASES = {
         'USER': 'testuser',
         'PASSWORD': 'test',
         'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
