@@ -11,10 +11,10 @@ import datetime
 
 # Create your views here.
 
-class Accounts(View):
+class Login(View):
     @csrf_exempt
     def dispatch(self, req, *args, **kwargs):
-        return super(Accounts, self).dispatch(req, *args, **kwargs)
+        return super(Login, self).dispatch(req, *args, **kwargs)
     
     def post(self, req):
         if req.method == "POST":
@@ -29,11 +29,57 @@ class Accounts(View):
                     'last_name': user.last_name,
                     'loggedIn': True,
                     'status': 200
-                }, safe=False)
+                    }, safe=False)
             else:
                return JsonResponse({'loggedIn': False}, safe=False)
 
-now = datetime.datetime.now()
+class Register(View):
+    @csrf_exempt
+    def dispatch(self, req, *args, **kwargs):
+        return super(Register, self).dispatch(req, *args, **kwargs)
+    
+    def post(self, req):
+        if req.method == "POST":
+            data = req.body.decode('utf-8')
+            data = json.loads(data)
+            try:
+                new_user = People(first_name = data.get('first_name'),
+                 last_name = data.get('last_name'),
+                 age = data.get('age'),
+                 birth_year = data.get('birth_year'),
+                 birth_month = data.get('birth_month'),
+                 birth_day = data.get('birth_day'))
+                new_user.save()
+                return JsonResponse(
+                    {'Content-Type':'application/json',
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'loggedIn': True,
+                    'status': 200
+                    }, safe=False)
+            except:
+                return JsonResponse({
+                    'loggedIn': False
+                    }, safe=False)
+        
+class User_detail(View):
+    @csrf_exempt
+    def dispatch(self, req, *args, **kwargs):
+        return super(Birthdays, self).dispatch(req, *args, **kwargs)
+    
+    def get(self, req, pk):
+        user = People.objects.get(pk=pk)
+        return JsonResponse({'data': user}, safe=False)
+
+    def delete(self, req, pk):
+        try:
+            user = People.objects.get(pk=pk)
+            user.delete()
+            return JsonResponse({'status': 200}, safe=False)
+        except People.DoesNotExist:
+            return JsonResponse({'status':500}, safe=False)
+        except:
+            return JsonResponse({'status':500}, safe=False)
 
 class Birthdays(View):
     @ensure_csrf_cookie
@@ -41,8 +87,9 @@ class Birthdays(View):
     def dispatch(self, req, *args, **kwargs):
         return super(Birthdays, self).dispatch(req, *args, **kwargs)
     
-    def new_day(self, req):
+    def get(self, req):
         try:
+            now = datetime.datetime.now()
             everyone = list(People.objects)
             for person in everyone:
                 if(now.strftime("%m") == person.birth_month):
@@ -50,10 +97,10 @@ class Birthdays(View):
                         person.age += 1
                         person.save()
             everyone.save()
-            return JsonResponse({'status': 200}, safe=False)
+            return JsonResponse({'status': 200, 'data': everyone}, safe=False)
 
         except People.DoesNotExist:
-            return JsonResponse({"error":"doesnt exist pal"}, safe=False)
+            return JsonResponse({"status": 500}, safe=False)
         except:
-            return JsonResponse({"error": "not valid data"}, safe=False)
+            return JsonResponse({"status": 500}, safe=False)
    
